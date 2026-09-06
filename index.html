@@ -1,0 +1,1162 @@
+<!doctype html>
+<html lang="ko" data-theme="night">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>우주 재활용 공장</title>
+<link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b2545; --fg:#ffffff; --accent:#5bc0eb; --sub:#a8dadc;
+    --font:"Jua","맑은 고딕","Malgun Gothic",sans-serif;
+  }
+  [data-theme="ocean"] { --bg:#0b2545; --fg:#ffffff; --accent:#5bc0eb; --sub:#a8dadc; }
+  [data-theme="forest"]{ --bg:#14281d; --fg:#f4fff8; --accent:#7cb518; --sub:#c3e8bd; }
+  [data-theme="sunset"]{ --bg:#3d1e2e; --fg:#fff5e1; --accent:#ff8c42; --sub:#ffd9a0; }
+  [data-theme="night"] { --bg:#12121c; --fg:#f0f0ff; --accent:#9b8cff; --sub:#c9c4e8; }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--fg);font-family:var(--font);overflow:hidden}
+  .slide{
+    position:absolute;inset:0;display:none;
+    flex-direction:column;justify-content:center;align-items:center;
+    text-align:center;padding:6vh 8vw;gap:2.4vh;
+  }
+  .slide.on{display:flex}
+  h1{font-size:12.5vh;line-height:1.12;color:var(--accent)}
+  h2{font-size:9.2vh;line-height:1.18;color:var(--accent)}
+  p,li{font-size:6.3vh;line-height:1.4;color:var(--fg)}
+  ul{text-align:left;max-width:80%}
+  li{margin:1vh 0}
+  .team{font-size:4.8vh;color:var(--sub)}
+  /* 글자에 은은한 빛(발광) 효과 */
+  .slide h1,.slide h2{text-shadow:0 0 2.6vh rgba(155,140,255,.55),0 0 6vh rgba(155,140,255,.25)}
+  .slide p,.slide li,.slide .team{text-shadow:0 0 1.6vh rgba(155,140,255,.35)}
+  .media{max-width:70%;max-height:52vh;border-radius:1.6vh}
+  /* ---- 작은 그림: 마무리 장 등에서 화면이 넘치지 않게 ---- */
+  .media-mini{max-width:34%;max-height:22vh}
+  .caption{font-size:3.2vh;line-height:1.4;color:var(--sub)}
+  /* ---- 작은 보조 글: 본문 아래 차분한 한 줄 ---- */
+  .subnote{font-size:2.4vh;line-height:1.4;color:var(--sub);opacity:.92}
+  .hint{position:fixed;right:2vw;bottom:2vh;font-size:1.8vh;color:var(--sub);opacity:.7}
+  .page{position:fixed;left:2vw;bottom:2vh;font-size:1.8vh;color:var(--sub);opacity:.7}
+
+  /* ---- 포스터 장: 포스터를 크게 보여준다 (이 장에만 적용) ---- */
+  .poster-big{max-width:82%;max-height:64vh}
+
+  /* ---- 숫자 세는 장: 큰 숫자를 강조한다 ---- */
+  .count{font-size:6.5vh;line-height:1.3;color:var(--accent);font-weight:bold}
+
+  /* ---- 표지(1번 장) 전용 꾸밈. 다른 장에는 영향 없음 ---- */
+  .slide.cover h1{
+    text-shadow:
+      0 0 1.2vh rgba(155,140,255,.85),
+      0 0 3vh  rgba(155,140,255,.45),
+      0 0 6.5vh rgba(155,140,255,.22);
+  }
+  .slide.cover .slogan{
+    font-size:4.2vh;font-weight:bold;color:var(--accent);
+    letter-spacing:.18em;
+    text-shadow:0 0 1.8vh rgba(155,140,255,.55);
+  }
+  .slide.cover .team{letter-spacing:.14em;color:var(--sub)}
+  .slide.cover .sparkle{
+    display:flex;align-items:center;gap:1.4vw;margin-top:1vh;
+    font-size:2.8vh;color:var(--accent);letter-spacing:.8vw;
+  }
+  .slide.cover .sparkle::before,
+  .slide.cover .sparkle::after{
+    content:"";width:16vw;height:2px;border-radius:2px;
+    background:linear-gradient(90deg,transparent,var(--accent),transparent);
+  }
+
+
+  /* ---- 밤하늘 배경: 별과 성운 (그림 없이 CSS만) ---- */
+  .bg-stars{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;
+    background:
+      radial-gradient(44% 34% at 84% 12%, rgba(150,130,255,.13), transparent 70%),
+      radial-gradient(26% 22% at 93% 34%, rgba(120,115,255,.09), transparent 72%),
+      radial-gradient(42% 32% at 6% 92%, rgba(70,125,255,.12), transparent 72%),
+      radial-gradient(24% 20% at 15% 74%, rgba(120,185,255,.07), transparent 72%),
+      radial-gradient(58% 40% at 50% 110%, rgba(112,100,255,.10), transparent 72%),
+      radial-gradient(52% 38% at 50% -12%, rgba(162,142,255,.08), transparent 72%);}
+  .bg-stars::before,.bg-stars::after{content:"";position:absolute;top:0;left:0;
+    width:1px;height:1px;border-radius:50%}
+  .bg-stars::before{box-shadow:
+    58.2vw 26.7vh 0 0.7px rgba(205,196,255,0.66), 77.4vw 64.5vh 0 0px rgba(255,255,255,0.83), 5.6vw 22.2vh 0 0.8px rgba(205,196,255,0.81), 68.1vw 16.3vh 0 0.8px rgba(186,216,255,0.71), 4.2vw 74.7vh 0 0.7px rgba(205,196,255,0.47), 12.2vw 58.2vh 0 0px rgba(255,255,255,0.47),
+    71.5vw 18.0vh 0 0px rgba(255,255,255,0.67), 54.8vw 50.8vh 0 0.7px rgba(255,255,255,0.54), 85.5vw 73.5vh 0 0px rgba(205,196,255,0.61), 9.4vw 64.0vh 0 0.7px rgba(205,196,255,0.53), 49.1vw 47.4vh 0 0px rgba(255,255,255,0.69), 90.0vw 37.8vh 0 0px rgba(255,255,255,0.46),
+    93.6vw 38.0vh 0 0px rgba(186,216,255,0.76), 39.3vw 56.3vh 0 0px rgba(186,216,255,0.80), 87.7vw 18.7vh 0 0px rgba(255,255,255,0.81), 14.0vw 22.7vh 0 0.7px rgba(255,255,255,0.47), 81.0vw 27.9vh 0 0px rgba(186,216,255,0.50), 85.2vw 29.5vh 0 0.7px rgba(255,255,255,0.55),
+    28.1vw 61.9vh 0 0px rgba(205,196,255,0.67), 94.7vw 67.8vh 0 0px rgba(255,255,255,0.56), 99.0vw 22.0vh 0 0px rgba(255,255,255,0.76), 44.4vw 9.5vh 0 0px rgba(255,255,255,0.84), 13.0vw 51.9vh 0 0px rgba(255,255,255,0.82), 1.0vw 10.9vh 0 0px rgba(186,216,255,0.46),
+    66.2vw 87.7vh 0 0px rgba(255,255,255,0.61), 90.0vw 57.2vh 0 0px rgba(255,255,255,0.79), 38.5vw 56.5vh 0 0.7px rgba(255,255,255,0.65), 86.2vw 1.3vh 0 0.8px rgba(255,255,255,0.66), 15.2vw 37.3vh 0 0px rgba(255,255,255,0.65), 56.6vw 63.1vh 0 0px rgba(255,255,255,0.49),
+    4.0vw 88.4vh 0 0px rgba(255,255,255,0.76), 8.9vw 98.2vh 0 0px rgba(205,196,255,0.77), 76.3vw 56.0vh 0 0px rgba(255,255,255,0.66), 54.5vw 13.9vh 0 0px rgba(255,255,255,0.75), 60.3vw 86.1vh 0 0px rgba(255,255,255,0.65), 35.4vw 65.9vh 0 0px rgba(255,255,255,0.69),
+    12.5vw 4.4vh 0 0px rgba(255,255,255,0.48), 29.1vw 38.8vh 0 0px rgba(205,196,255,0.67), 41.0vw 73.0vh 0 0.7px rgba(186,216,255,0.78), 56.8vw 63.6vh 0 0px rgba(255,255,255,0.55), 45.5vw 15.4vh 0 0px rgba(205,196,255,0.70), 41.2vw 22.2vh 0 0px rgba(186,216,255,0.64),
+    23.7vw 35.5vh 0 0px rgba(255,255,255,0.74), 18.6vw 74.3vh 0 0px rgba(255,255,255,0.52), 4.0vw 11.5vh 0 0.7px rgba(255,255,255,0.71), 91.8vw 45.0vh 0 0px rgba(205,196,255,0.54), 66.3vw 51.3vh 0 0px rgba(255,255,255,0.59), 30.3vw 35.5vh 0 0.8px rgba(255,255,255,0.74),
+    1.9vw 33.0vh 0 0px rgba(205,196,255,0.57), 45.3vw 57.2vh 0 0px rgba(255,255,255,0.49), 41.8vw 96.1vh 0 0.8px rgba(255,255,255,0.81), 53.2vw 48.5vh 0 0px rgba(255,255,255,0.58), 6.5vw 24.7vh 0 0px rgba(255,255,255,0.76), 12.6vw 50.3vh 0 0px rgba(205,196,255,0.52),
+    81.7vw 15.3vh 0 0px rgba(205,196,255,0.83), 17.9vw 86.8vh 0 0px rgba(255,255,255,0.59), 85.3vw 48.8vh 0 0px rgba(255,255,255,0.73), 87.2vw 41.5vh 0 0px rgba(205,196,255,0.85), 67.9vw 32.4vh 0 0px rgba(186,216,255,0.74), 91.6vw 58.4vh 0 0px rgba(255,255,255,0.47),
+    51.3vw 41.6vh 0 0px rgba(255,255,255,0.52), 34.0vw 38.8vh 0 0.7px rgba(255,255,255,0.50), 53.0vw 27.2vh 0 0.7px rgba(255,255,255,0.79), 81.0vw 4.0vh 0 0.7px rgba(186,216,255,0.82), 49.3vw 11.9vh 0 0px rgba(255,255,255,0.55), 49.4vw 85.5vh 0 0px rgba(205,196,255,0.60),
+    95.4vw 62.5vh 0 0px rgba(255,255,255,0.77), 17.2vw 28.2vh 0 0px rgba(255,255,255,0.72), 24.3vw 11.5vh 0 0px rgba(205,196,255,0.67), 10.0vw 97.4vh 0 0px rgba(255,255,255,0.49), 92.8vw 9.1vh 0 0px rgba(205,196,255,0.80), 82.2vw 94.1vh 0 0.8px rgba(255,255,255,0.81),
+    70.0vw 9.9vh 0 0px rgba(255,255,255,0.79), 27.1vw 83.7vh 0 0px rgba(186,216,255,0.82), 87.6vw 46.8vh 0 0.8px rgba(255,255,255,0.56), 94.0vw 47.1vh 0 0px rgba(255,255,255,0.48), 44.0vw 3.0vh 0 0px rgba(255,255,255,0.50), 97.4vw 77.9vh 0 0.7px rgba(255,255,255,0.51),
+    31.3vw 66.5vh 0 0px rgba(255,255,255,0.67), 50.7vw 82.6vh 0 0.8px rgba(205,196,255,0.65), 92.7vw 66.4vh 0 0px rgba(255,255,255,0.55), 88.2vw 70.9vh 0 0px rgba(255,255,255,0.60), 60.1vw 67.1vh 0 0px rgba(255,255,255,0.51), 51.3vw 18.1vh 0 0.7px rgba(255,255,255,0.65),
+    8.0vw 10.7vh 0 0.7px rgba(255,255,255,0.60), 87.6vw 9.8vh 0 0px rgba(205,196,255,0.75), 86.3vw 46.3vh 0 0.8px rgba(186,216,255,0.77), 74.6vw 9.2vh 0 0.8px rgba(186,216,255,0.71), 58.0vw 61.5vh 0 0px rgba(205,196,255,0.70), 3.6vw 15.8vh 0 0px rgba(255,255,255,0.77),
+    3.5vw 98.8vh 0 0px rgba(186,216,255,0.45), 11.2vw 85.6vh 0 0.7px rgba(186,216,255,0.52), 72.8vw 18.6vh 0 0.8px rgba(255,255,255,0.56), 6.4vw 77.5vh 0 0px rgba(186,216,255,0.62), 3.7vw 96.3vh 0 0px rgba(205,196,255,0.61), 4.2vw 83.4vh 0 0px rgba(205,196,255,0.84),
+    54.1vw 90.2vh 0 0px rgba(186,216,255,0.47), 36.8vw 93.8vh 0 0px rgba(255,255,255,0.75), 69.0vw 34.1vh 0 0px rgba(186,216,255,0.48), 43.0vw 51.8vh 0 0px rgba(255,255,255,0.79), 52.3vw 85.6vh 0 0.8px rgba(205,196,255,0.53), 58.9vw 15.5vh 0 0px rgba(255,255,255,0.69),
+    80.7vw 7.7vh 0 0.7px rgba(205,196,255,0.76), 3.6vw 65.6vh 0 0px rgba(255,255,255,0.72), 1.0vw 13.8vh 0 0px rgba(255,255,255,0.55), 92.1vw 42.6vh 0 0.7px rgba(255,255,255,0.76), 64.3vw 83.5vh 0 0px rgba(255,255,255,0.81), 48.8vw 5.2vh 0 0.7px rgba(255,255,255,0.62),
+    9.9vw 32.4vh 0 0.8px rgba(255,255,255,0.83), 41.6vw 10.8vh 0 0px rgba(205,196,255,0.53), 17.5vw 73.0vh 0 0.7px rgba(255,255,255,0.70), 75.4vw 55.6vh 0 0px rgba(255,255,255,0.63), 45.3vw 18.3vh 0 0px rgba(255,255,255,0.65), 37.0vw 42.1vh 0 0px rgba(255,255,255,0.84),
+    32.2vw 53.0vh 0 0px rgba(255,255,255,0.82), 8.8vw 29.3vh 0 0px rgba(255,255,255,0.62), 67.2vw 84.5vh 0 0.8px rgba(255,255,255,0.68), 16.0vw 63.8vh 0 0px rgba(205,196,255,0.81), 33.0vw 90.3vh 0 0.8px rgba(205,196,255,0.48), 80.7vw 63.6vh 0 0px rgba(205,196,255,0.55);}
+  .bg-stars::after{box-shadow:
+    33.3vw 68.6vh 0.5px 2.0px rgba(172,150,255,0.43), 64.8vw 94.3vh 0.6px 2.4px rgba(172,150,255,0.43), 49.9vw 25.1vh 0.5px 1.7px rgba(172,150,255,0.48), 64.8vw 39.6vh 0.4px 1.7px rgba(172,150,255,0.40), 2.9vw 64.5vh 0.9px 1.8px rgba(172,150,255,0.56), 52.0vw 18.2vh 0.9px 1.8px rgba(172,150,255,0.44),
+    29.7vw 51.0vh 0.6px 2.0px rgba(172,150,255,0.39), 11.1vw 45.2vh 1.0px 1.8px rgba(172,150,255,0.40), 57.6vw 19.4vh 0.7px 2.1px rgba(172,150,255,0.58), 23.0vw 44.3vh 0.4px 1.6px rgba(172,150,255,0.50), 78.8vw 84.0vh 0.6px 1.8px rgba(172,150,255,0.43), 62.3vw 87.2vh 0.9px 1.8px rgba(172,150,255,0.47),
+    35.2vw 94.3vh 0.8px 2.2px rgba(172,150,255,0.48), 69.9vw 69.7vh 0.5px 2.3px rgba(172,150,255,0.47), 39.4vw 63.8vh 0.9px 2.0px rgba(172,150,255,0.47), 98.3vw 18.6vh 1.0px 2.1px rgba(172,150,255,0.37), 30.0vw 9.9vh 0.6px 2.4px rgba(172,150,255,0.54), 93.1vw 75.6vh 0.8px 1.8px rgba(172,150,255,0.57),
+    20.2vw 87.6vh 0.7px 2.4px rgba(172,150,255,0.46), 42.8vw 7.7vh 1.0px 1.9px rgba(172,150,255,0.60), 29.7vw 19.9vh 1.1px 1.8px rgba(172,150,255,0.43), 68.9vw 83.3vh 1.1px 1.6px rgba(172,150,255,0.43), 52.6vw 95.2vh 1.0px 2.3px rgba(172,150,255,0.55), 19.5vw 64.4vh 1.0px 2.4px rgba(172,150,255,0.39),
+    41.2vw 96.7vh 0.5px 2.0px rgba(172,150,255,0.55), 34.7vw 46.1vh 1.2px 2.2px rgba(172,150,255,0.55), 46.8vw 27.9vh 0.8px 1.7px rgba(172,150,255,0.41), 69.0vw 88.3vh 0.9px 2.3px rgba(172,150,255,0.53), 69.3vw 84.8vh 1.2px 2.4px rgba(172,150,255,0.53), 4.7vw 40.3vh 0.6px 1.9px rgba(172,150,255,0.55),
+    8.6vw 52.7vh 1.1px 2.6px rgba(172,150,255,0.44), 3.9vw 75.4vh 0.9px 1.9px rgba(172,150,255,0.50);
+    animation:star-twinkle 6s ease-in-out infinite alternate}
+  @keyframes star-twinkle{from{opacity:.55}to{opacity:1}}
+  @media (prefers-reduced-motion: reduce){
+    .bg-stars::after{animation:none;opacity:.75}}
+
+  /* ============ 우주 지킴이 챌린지! (관객이 누르는 퀴즈 게임 장) ============ */
+  .quiz-sub{font-size:2.7vh;color:var(--sub);margin-top:-.8vh}
+  .quiz-play{display:flex;flex-direction:column;align-items:center;gap:1.9vh}
+  .quiz-progress{
+    font-size:2.6vh;color:var(--accent);letter-spacing:.14em;
+    background:rgba(155,140,255,.10);border:1px solid rgba(155,140,255,.3);
+    padding:.5vh 3vh;border-radius:999px;
+  }
+  .quiz-question{
+    font-size:4.3vh;line-height:1.42;color:var(--fg);
+    background:rgba(155,140,255,.08);
+    border:1px solid rgba(155,140,255,.32);
+    border-radius:3vh;padding:2.4vh 4.5vw;max-width:min(94vw,96vh);
+    box-shadow:0 0 4vh rgba(155,140,255,.10) inset;
+  }
+  .quiz-options{display:flex;flex-direction:column;gap:1.5vh;width:min(88vw,110vh)}
+  .quiz-option{
+    font-family:var(--font);font-size:3.3vh;line-height:1.25;color:var(--fg);
+    background:rgba(201,196,232,.07);
+    border:2px solid rgba(201,196,232,.38);
+    border-radius:999px;padding:1.35vh 3vh;cursor:pointer;text-align:center;
+    transition:transform .18s ease,border-color .25s ease,
+               background .25s ease,color .25s ease,opacity .25s ease;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .quiz-option:hover:not(:disabled){
+    transform:translateY(-.4vh);border-color:var(--accent);
+    background:rgba(155,140,255,.18);
+  }
+  .quiz-option:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+  .quiz-option:disabled{opacity:.42;cursor:default;transform:none}
+  .quiz-option.correct{
+    background:rgba(124,224,168,.20);border-color:#62d99a;color:#c9f7de;
+    opacity:1;transform:none;box-shadow:0 0 3vh rgba(98,217,154,.35);
+  }
+  .quiz-option.wrong{
+    background:rgba(255,150,160,.14);border-color:#ff8fa0;color:#ffd3da;
+    opacity:1;transform:none;
+  }
+  .quiz-option.q-pop{animation:quizPop .38s ease both}
+  @keyframes quizPop{from{opacity:0;transform:translateY(1.6vh)}to{opacity:1;transform:none}}
+  .quiz-feedback{
+    min-height:4.6vh;font-size:3.4vh;color:var(--fg);
+    opacity:0;transition:opacity .22s ease;
+  }
+  .quiz-feedback.show{opacity:1}
+  .quiz-feedback.good{color:#62d99a;text-shadow:0 0 2.4vh rgba(98,217,154,.6)}
+  .quiz-feedback.bad{color:#ff8fa0;text-shadow:0 0 2.4vh rgba(255,143,160,.6)}
+  .quiz-result{display:none;flex-direction:column;align-items:center;gap:2vh;text-align:center}
+  .quiz-result.show{display:flex}
+  .quiz-score{
+    font-size:6.5vh;font-weight:bold;color:var(--accent);
+    text-shadow:0 0 3vh rgba(155,140,255,.55);
+  }
+  .quiz-stars{font-size:5.5vh;color:var(--accent);letter-spacing:1vw;
+    text-shadow:0 0 2.6vh rgba(155,140,255,.45)}
+  .quiz-stars .off{opacity:.22;text-shadow:none}
+  .quiz-message{font-size:3.3vh;line-height:1.55;color:var(--fg)}
+  .quiz-message strong{color:var(--accent);font-weight:bold}
+  .quiz-retry{
+    font-family:var(--font);font-size:3.4vh;font-weight:bold;
+    color:#14141f;background:linear-gradient(180deg,#c4baff,var(--accent));
+    border:none;border-radius:999px;padding:1.6vh 7vh;cursor:pointer;
+    box-shadow:0 0 3.4vh rgba(155,140,255,.55);
+    transition:transform .18s ease,box-shadow .25s ease;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .quiz-retry:hover{transform:translateY(-.5vh);box-shadow:0 0 5vh rgba(155,140,255,.7)}
+  .quiz-retry:focus-visible{outline:3px solid var(--sub);outline-offset:3px}
+  @media (prefers-reduced-motion: reduce){
+    .quiz-option,.quiz-feedback,.quiz-retry,.quiz-question{transition:none}
+    .quiz-option.q-pop{animation:none}
+  }
+
+  /* ---- 우주쓰레기 표 장: 실제 데이터 표처럼 가는 선과 여백으로 정돈 ---- */
+  .trash-table{
+    width:min(80vw,116vh);
+    border-collapse:collapse;
+  }
+  .trash-table th{
+    font-size:3.9vh;font-weight:bold;letter-spacing:.08em;
+    color:var(--fg);
+    background:rgba(155,140,255,.16);
+    text-align:left;white-space:nowrap;
+    padding:1.2vh 1.6vw;
+    border-bottom:2px solid rgba(155,140,255,.38);
+  }
+  .trash-table th:nth-child(2){text-align:right;white-space:nowrap}
+  .trash-table td{
+    font-size:3.7vh;line-height:1.3;color:var(--fg);
+    padding:1.8vh 1.6vw;
+    border-bottom:1px solid rgba(155,140,255,.18);
+  }
+  .trash-table td:nth-child(2){
+    text-align:right;white-space:nowrap;
+    font-variant-numeric:tabular-nums;
+  }
+  .trash-table .unit{
+    font-size:.82em;color:var(--sub);font-weight:normal;
+  }
+  /* 표 아래 설명: 작고 차분하게 */
+  .trash-table-note{
+    font-size:2.5vh;color:var(--sub);
+  }
+  .trash-table-source{
+    font-size:2vh;color:var(--sub);opacity:.75;
+  }
+
+  /* ============ 멈추지 않는 우주쓰레기 (계속 늘어나는 큰 숫자, 이 장에만 적용) ============ */
+  .grow-num{
+    display:inline-block;
+    font-size:13vh;line-height:1.14;font-weight:bold;
+    color:var(--accent);
+    font-variant-numeric:tabular-nums;
+    /* 빛 효과는 모두 테마 강조색에서 나온다 */
+    text-shadow:
+      0 0 .06em currentColor,
+      0 0 .2em  currentColor,
+      0 0 .45em currentColor;
+    text-shadow:
+      0 0 .06em currentColor,
+      0 0 .24em color-mix(in srgb, var(--accent) 55%, transparent),
+      0 0 .55em color-mix(in srgb, var(--accent) 28%, transparent);
+  }
+  /* 숫자가 1 늘어날 때마다 살짝 튀어 오르며 반짝인다 (테마 강조색) */
+  .grow-num.pop{animation:growPop .32s ease-out}
+  @keyframes growPop{
+    0%  {transform:scale(1);    filter:brightness(1)}
+    35% {transform:scale(1.07); filter:brightness(1.6)}
+    100%{transform:scale(1);    filter:brightness(1)}
+  }
+  /* 맨 아래 정직한 안내: 아주 작고 차분하게 */
+  .grow-note{font-size:2.6vh;color:var(--sub);opacity:1;font-weight:bold}
+  @media (prefers-reduced-motion: reduce){
+    .grow-num.pop{animation:none}
+  }
+
+  /* ============ 연료의 비밀 장: 쓰레기 조각 → 가루 → 고체 연료 (CSS만 그리는 작은 장면) ============ */
+  .fuel-steps{
+    display:flex;align-items:center;justify-content:center;
+    height:15vh;min-height:15vh;margin-bottom:1vh;
+  }
+  .fuel-step{
+    display:flex;flex-direction:column;align-items:center;
+    gap:.5vh;padding:0 .4vw;
+  }
+  .fuel-ico{
+    position:relative;display:flex;align-items:center;justify-content:center;
+    width:11vh;height:8.6vh;
+  }
+  .fuel-cap{
+    font-size:2.2vh;line-height:1.25;color:var(--sub);
+    max-width:13vh;text-align:center;
+  }
+  .fuel-shape{display:block}
+  /* 회색 금속 조각: 울퉁불퉁한 쓰레기 */
+  .fuel-shape.metal{
+    width:12.5vh;height:10vh;
+    background:
+      radial-gradient(circle at 32% 26%, rgba(255,255,255,.9) 0 .7vh, transparent 1.5vh),
+      radial-gradient(circle at 70% 76%, rgba(255,255,255,.3) 0 .9vh, transparent 2.2vh),
+      linear-gradient(155deg,#cfd7e6 6%,#a5aec2 48%,#7d899f 96%);
+    clip-path:polygon(17% 5%,63% 0,96% 19%,83% 46%,100% 67%,84% 100%,30% 92%,3% 77%,10% 41%,0 22%);
+    filter:drop-shadow(0 .4vh .8vh rgba(0,0,0,.35));
+  }
+  /* 은빛 알루미늄 가루: 하얀 가루 더미 + 반짝임 */
+  .fuel-shape.powder{
+    position:relative;width:11.5vh;height:6.4vh;border-radius:50%;
+    background:
+      radial-gradient(circle at 20% 35%, #fff 0 .3vh, transparent .5vh),
+      radial-gradient(circle at 46% 16%, #fff 0 .36vh, transparent .55vh),
+      radial-gradient(circle at 76% 32%, #fff 0 .28vh, transparent .47vh),
+      radial-gradient(circle at 62% 72%, #f3f6fd 0 .38vh, transparent .6vh),
+      radial-gradient(circle at 30% 84%, #f3f6fd 0 .3vh, transparent .52vh),
+      radial-gradient(circle at 50% 135%, #c9d3e5 28%, transparent 74%),
+      linear-gradient(180deg,#eef2fa,#b7c1d5 82%);
+    box-shadow:0 .4vh .9vh rgba(0,0,0,.32);
+  }
+  .fuel-shape.powder::after{
+    content:"✦";position:absolute;left:50%;top:-2.6vh;transform:translateX(-50%);
+    font-size:2.2vh;line-height:1;color:#fff;
+    text-shadow:0 0 1.4vh rgba(255,255,255,.95), 0 0 2.6vh rgba(255,255,255,.55);
+    animation:powderTwinkle 1.7s ease-in-out infinite;
+  }
+  @keyframes powderTwinkle{0%,100%{opacity:.3;transform:translateX(-50%) scale(.85)}50%{opacity:1;transform:translateX(-50%) scale(1.15)}}
+  /* 반짝이는 고체 연료 덩어리: 은빛 + 보랏빛 광채 */
+  .fuel-shape.bar{
+    position:relative;width:10.5vh;height:8.6vh;border-radius:2.2vh;
+    background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(226,232,248,.9) 46%,rgba(178,188,214,.95));
+    border:2px solid rgba(255,255,255,.6);
+    box-shadow:
+      0 .4vh .8vh rgba(0,0,0,.3),
+      0 0 2.4vh color-mix(in srgb, var(--accent) 80%, transparent),
+      0 0 5vh   color-mix(in srgb, var(--accent) 38%, transparent);
+  }
+  .fuel-shape.bar::after{
+    content:"";position:absolute;inset:0;border-radius:2.2vh;
+    background:linear-gradient(115deg,rgba(255,255,255,.75),rgba(255,255,255,0) 32%,
+      color-mix(in srgb, var(--accent) 24%, transparent) 48%,rgba(255,255,255,0) 64%,rgba(255,255,255,.35));
+  }
+  .fuel-arrow{
+    align-self:center;
+    font-size:4.2vh;line-height:1;color:var(--accent);
+    margin:0 1.3vw 3vh 1.3vw;opacity:.92;
+    text-shadow:0 0 1.8vh color-mix(in srgb, var(--accent) 55%, transparent);
+  }
+  /* 등장: 왼쪽부터 한 칸씩 반짝이며 나타난다 (장이 보일 때마다 다시 재생) */
+  .slide.fuel-slide.on .fuel-step{opacity:0;animation:fuelStep .55s ease-out forwards}
+  .slide.fuel-slide.on .fuel-step.f1{animation-delay:.55s}
+  .slide.fuel-slide.on .fuel-step.f2{animation-delay:1.0s}
+  .slide.fuel-slide.on .fuel-step.f3{animation-delay:1.45s}
+  @keyframes fuelStep{
+    0%  {opacity:0;transform:translateY(1.4vh) scale(.9);filter:brightness(2.1)}
+    45% {opacity:1;transform:translateY(0) scale(1.05);filter:brightness(1.9)}
+    100%{opacity:1;transform:translateY(0) scale(1);filter:brightness(1)}
+  }
+  /* 마지막 덩어리는 은은한 광채가 숨 쉰다 */
+  .slide.fuel-slide.on .fuel-step.f3 .fuel-shape.bar{animation:barGlow 2.6s ease-in-out 2s infinite}
+  @keyframes barGlow{
+    0%,100%{box-shadow:0 .4vh .8vh rgba(0,0,0,.3),0 0 2.4vh color-mix(in srgb,var(--accent) 78%,transparent),0 0 5vh color-mix(in srgb,var(--accent) 34%,transparent)}
+    50%{box-shadow:0 .4vh .8vh rgba(0,0,0,.3),0 0 3.8vh color-mix(in srgb,var(--accent) 92%,transparent),0 0 8.5vh color-mix(in srgb,var(--accent) 52%,transparent)}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .slide.fuel-slide.on .fuel-step{opacity:1 !important;animation:none}
+    .slide.fuel-slide.on .fuel-step.f3 .fuel-shape.bar{animation:none}
+    .fuel-shape.powder::after{animation:none;opacity:.9}
+  }
+
+  /* ============ 마무리 감동 장면 (우리 팀 장 바로 앞, 이 장에만 적용) ============ */
+  .slide.finale{
+    padding:0;   /* 사진을 화면에 꽉 차게 */
+    background-image:
+      linear-gradient(rgba(7,5,18,.18),rgba(7,5,18,.55)),
+      url('assets/그림-12.jpg');
+    background-size:cover;background-position:center;
+  }
+  /* 은은한 어두운 오버레이: 뒤에서도 문구가 읽히게 */
+  .slide.finale::before{
+    content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+    background:
+      radial-gradient(115% 90% at 50% 45%, rgba(4,2,12,.58), rgba(4,2,12,.06) 62%, rgba(4,2,12,.30) 100%),
+      linear-gradient(180deg,rgba(8,5,20,.22),rgba(8,5,20,0) 30%,rgba(8,5,20,.40) 100%);
+  }
+  .slide.finale .finale-glow,
+  .slide.finale .finale-stars{z-index:1}
+  .slide.finale .finale-text{
+    z-index:2;position:relative;
+    display:flex;flex-direction:column;align-items:center;gap:1.6vh;
+  }
+  .slide.finale .finale-sparks{z-index:3}
+
+  /* 광채: 보랏빛과 금빛이 은은하게 숨 쉰다 */
+  .slide.finale .finale-glow{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+  .slide.finale .finale-glow i{position:absolute;border-radius:50%;will-change:opacity,transform}
+  .slide.finale .finale-glow .fg-a{
+    left:-9%;top:-8%;width:66vmin;height:66vmin;
+    background:radial-gradient(circle,rgba(255,198,112,.26),rgba(255,198,112,0) 65%);
+    animation:finale-breathe-a 7.5s ease-in-out infinite;
+  }
+  .slide.finale .finale-glow .fg-b{
+    right:-12%;bottom:-12%;width:82vmin;height:82vmin;
+    background:radial-gradient(circle,rgba(134,114,255,.30),rgba(134,114,255,0) 66%);
+    animation:finale-breathe-a 9.5s ease-in-out infinite reverse;
+  }
+  .slide.finale .finale-glow .fg-c{
+    left:50%;top:50%;width:118vmin;height:56vmin;transform:translate(-50%,-50%);
+    background:radial-gradient(ellipse,rgba(120,104,255,.17),rgba(120,104,255,0) 72%);
+    animation:finale-breathe-c 6.5s ease-in-out infinite;
+  }
+  @keyframes finale-breathe-a{
+    0%,100%{opacity:.40;transform:scale(1)}50%{opacity:.95;transform:scale(1.14)}
+  }
+  @keyframes finale-breathe-c{
+    0%,100%{opacity:.50;transform:translate(-50%,-50%) scale(1)}
+    50%{opacity:.90;transform:translate(-50%,-50%) scale(1.18)}
+  }
+
+  /* 반짝이는 별 파티클 (금빛·보랏빛 작은 점) */
+  .slide.finale .finale-stars{position:absolute;inset:0;pointer-events:none}
+  .slide.finale .finale-star{
+    position:absolute;border-radius:50%;opacity:0;
+    animation:finale-twinkle 4s ease-in-out infinite;
+  }
+  .slide.finale .finale-star.g{background:#ffe7b8;box-shadow:0 0 4px rgba(255,220,150,.9)}
+  .slide.finale .finale-star.p{background:#d5cbff;box-shadow:0 0 4px rgba(176,158,255,.85)}
+  @keyframes finale-twinkle{
+    0%,100%{opacity:var(--o,.5)}50%{opacity:.05}
+  }
+
+  /* 감동 문구: 크고 또렷하게, 은은한 발광 */
+  .slide.finale .finale-line{
+    font-size:7.2vh;line-height:1.32;color:#ffffff;font-weight:bold;
+    text-shadow:
+      0 0 1.2vh rgba(158,142,255,.95),
+      0 0 3vh  rgba(158,142,255,.55),
+      0 0 7vh  rgba(158,142,255,.30),
+      0 0 12vh rgba(255,200,120,.22);
+  }
+  .slide.finale .finale-line.l1{font-size:6.6vh}
+  .slide.finale .finale-line.l2{
+    color:#fff4e2;
+    text-shadow:
+      0 0 1.2vh rgba(255,196,120,.85),
+      0 0 3vh  rgba(255,190,120,.45),
+      0 0 8vh  rgba(178,150,255,.35),
+      0 0 14vh rgba(255,220,160,.25);
+  }
+  .slide.finale .finale-orn{
+    margin-top:1.6vh;font-size:3.2vh;letter-spacing:1.4vw;
+    color:#ffd98c;text-shadow:0 0 2.2vh rgba(255,205,130,.8);
+  }
+
+  /* 문구가 뜰 때 살짝 터지는 반짝임 */
+  .slide.finale .finale-sparks{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+  .slide.finale .finale-spark{
+    position:absolute;line-height:1;opacity:0;
+    transform:translate(0,0) scale(.3);
+    animation:finale-spark .95s ease-out forwards;
+    will-change:transform,opacity;
+  }
+  .slide.finale .finale-spark.g{color:#ffe1a0;text-shadow:0 0 1.4vh rgba(255,210,130,.95)}
+  .slide.finale .finale-spark.p{color:#cfc2ff;text-shadow:0 0 1.4vh rgba(160,140,255,.95)}
+  @keyframes finale-spark{
+    0%{opacity:0;transform:translate(0,0) scale(.3)}
+    22%{opacity:1;transform:translate(calc(var(--dx)*.3),calc(var(--dy)*.3)) scale(1.05)}
+    100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(.3)}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .slide.finale .finale-glow i{animation:none;opacity:.7}
+    .slide.finale .finale-star{animation:none;opacity:.5}
+    .slide.finale .finale-spark{display:none}
+    .slide.finale .finale-line,
+    .slide.finale .finale-orn{opacity:1 !important;transform:none !important}
+  }
+
+  /* 문단 끝마다 반짝이는 별 장식 */
+  .slide p::after{
+    content:" ✦";
+    display:inline-block;
+    vertical-align:.15em;
+    margin-left:.14em;
+    font-size:.62em;
+    color:var(--accent);
+    text-shadow:0 0 1.4vh rgba(255,240,190,.75);
+    animation:문단별 1.7s ease-in-out infinite alternate;
+  }
+  @keyframes 문단별{
+    from{opacity:.35;transform:scale(.82) rotate(-8deg)}
+    to{opacity:1;transform:scale(1.05) rotate(8deg)}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .slide p::after{animation:none;opacity:.9}
+  }
+  /* 게임·버튼 등 안쪽 문장에는 별을 붙이지 않음 */
+  .quiz-slide p::after,
+  .grow-num::after{content:"";margin:0}
+
+  /* 전체 화면을 감싸는 장식 틀 */
+  .deck-frame{
+    position:fixed;inset:1.6vh;z-index:2;pointer-events:none;
+    border:2px solid rgba(155,140,255,.34);
+    border-radius:2.2vh;
+    box-shadow:
+      inset 0 0 0 .6vh rgba(155,140,255,.05),
+      inset 0 0 4vh rgba(155,140,255,.10),
+      0 0 3vh rgba(155,140,255,.14);
+    background:
+      radial-gradient(circle at 2.4vh 2.4vh, rgba(200,190,255,.95) 0 .75vh, transparent 1.4vh),
+      radial-gradient(circle at calc(100% - 2.4vh) 2.4vh, rgba(200,190,255,.95) 0 .75vh, transparent 1.4vh),
+      radial-gradient(circle at 2.4vh calc(100% - 2.4vh), rgba(200,190,255,.95) 0 .75vh, transparent 1.4vh),
+      radial-gradient(circle at calc(100% - 2.4vh) calc(100% - 2.4vh), rgba(200,190,255,.95) 0 .75vh, transparent 1.4vh);
+  }
+
+</style>
+</head>
+<body>
+
+<!-- 밤하늘 별·성운 배경 (CSS만) -->
+<div class="bg-stars" aria-hidden="true"></div>
+<div class="deck-frame" aria-hidden="true"></div>
+
+<!-- 1. 표지 -->
+<section class="slide on cover">
+  <h1>우주 재활용 공장</h1>
+  <p class="slogan">우주쓰레기를 다시 연료로!</p>
+  <p class="team">03조 우주 지킴이</p>
+  <div class="sparkle" aria-hidden="true">✦ ✦ ✦</div>
+</section>
+
+<!-- 2. 우리가 찾은 문제 -->
+<section class="slide">
+  <h2>우리가 찾은 문제</h2>
+  <ul>
+    <li>우주에는 버려진 로켓 조각과 부서진 위성이 많아요</li>
+    <li>그 조각들이 아주 빠르게 날아다녀서<br>멀쩡한 위성을 부술 수 있어요</li>
+    <li>위성이 망가지면 우리 생활도 힘들어져요</li>
+    <li>그런데 우주쓰레기를 치울 방법이 없어요</li>
+  </ul>
+</section>
+
+<!-- 5. 우주쓰레기, 얼마나 많을까? (크기별 조각 수 표) -->
+<section class="slide">
+  <h2>우주쓰레기, 얼마나 많을까?</h2>
+  <table class="trash-table">
+    <thead>
+      <tr>
+        <th scope="col">크기</th>
+        <th scope="col">조각 수</th>
+        <th scope="col">위성에 부딪치면?</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>10cm보다 큰 조각</td>
+        <td><span class="unit">약</span> 34,000<span class="unit">개</span></td>
+        <td>위성을 통째로 부술 수 있어요</td>
+      </tr>
+      <tr>
+        <td>1cm~10cm 조각</td>
+        <td><span class="unit">약</span> 900,000<span class="unit">개</span></td>
+        <td>위성을 크게 다치게 해요</td>
+      </tr>
+      <tr>
+        <td>1cm보다 작은 조각</td>
+        <td><span class="unit">약</span> 1억 3,000만<span class="unit">개</span></td>
+        <td>작아도 금을 내고 멈추게 해요</td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="trash-table-note">작을수록 훨씬 많아서, 잡기가 더 어려워요.</p>
+  <p class="trash-table-source">출처: 유럽 우주국(ESA)이 관측해 추산한 수예요.</p>
+</section>
+
+<!-- 멈추지 않는 우주쓰레기: 장이 보이는 동안 큰 숫자가 계속 늘어난다 -->
+<section class="slide" id="grow-slide" aria-label="우주쓰레기가 지금도 계속 늘어나요">
+  <h2>멈추지 않는 우주쓰레기</h2>
+  <p><span class="grow-num" id="grow-num-text">130,000,000</span></p>
+  <p>매일 새로운 조각이 생겨나고 있어요.<br>그래서 지금 우리가 멈춰야 해요!</p>
+  <p class="grow-note">(늘어나는 모습을 보여주는 숫자예요)</p>
+</section>
+
+<!-- 6. 우리의 질문 -->
+<section class="slide">
+  <h2>우리의 질문</h2>
+  <p>쓰레기를 다시 쓸 수 있다면<br>우주도 깨끗해지고 자원도 아낄 수 있어요.<br><br>우리가 어떻게 하면 우주쓰레기를<br>다시 연료로 바꿀 수 있을까?</p>
+</section>
+
+<!-- 6. 우리의 캠페인 -->
+<section class="slide">
+  <h2>우리의 캠페인</h2>
+  <p>우주 재활용 공장은 버려진 우주쓰레기를<br>모아서 다시 연료로 만드는 캠페인이에요.</p>
+  <ul>
+    <li>자석 팔 달린 우주선이 쓰레기를 잡아와요</li>
+    <li>공장에서 쓰레기를 종류별로 분해해요</li>
+    <li>분해한 조각으로 다시 연료를 만들어요</li>
+    <li>그 연료로 우주선이 다시 힘차게 날아가요!</li>
+  </ul>
+</section>
+
+<!-- 7. 쓰레기가 연료로 변해요 -->
+<section class="slide">
+  <h2>쓰레기가 연료로 변해요</h2>
+  <ul>
+    <li>자석 우주선이 쓰레기를 잡아와요</li>
+    <li>공장에서 분해해서 연료를 만들어요</li>
+    <li>우주선이 새 연료로 다시 날아가요!</li>
+  </ul>
+  <img class="media" src="assets/그림-11.jpg" alt="우주 재활용 공장 그림">
+</section>
+
+<!-- 쓰레기가 연료로 변해요 바로 뒤: 연료의 비밀, 알루미늄 (고체 연료 재료) -->
+<section class="slide fuel-slide">
+  <h2>연료의 비밀, 알루미늄</h2>
+  <!-- CSS로만 그리는 작은 장면: 조각 → 가루 → 연료 -->
+  <div class="fuel-steps" aria-hidden="true">
+    <div class="fuel-step f1">
+      <span class="fuel-ico"><i class="fuel-shape metal"></i></span>
+      <span class="fuel-cap">회색 금속 조각</span>
+    </div>
+    <span class="fuel-arrow">→</span>
+    <div class="fuel-step f2">
+      <span class="fuel-ico"><i class="fuel-shape powder"></i></span>
+      <span class="fuel-cap">은빛 알루미늄 가루</span>
+    </div>
+    <span class="fuel-arrow">→</span>
+    <div class="fuel-step f3">
+      <span class="fuel-ico"><i class="fuel-shape bar"></i></span>
+      <span class="fuel-cap">반짝이는 고체 연료</span>
+    </div>
+  </div>
+  <p>우주쓰레기의 알루미늄을 가루로 만들어<br>
+     가열해서 다지면, 로켓에 쓰는 고체 연료가 돼요!</p>
+  <p class="subnote">쓰레기가 다시 힘을 내는 거예요!<br>(알루미늄 가루는 실제로 로켓 연료의 재료로 쓰여요)</p>
+</section>
+
+<!-- 8. 우리가 만든 것 -->
+<section class="slide">
+  <h2>우리 우주선 자랑!</h2>
+  <p>자석 팔로 우주쓰레기를<br>척! 잡아오는 우주선</p>
+  <img class="media" src="assets/그림-10.jpg" alt="자석 팔로 우주쓰레기를 잡아오는 우주선 그림">
+</section>
+
+<!-- 9. 우리가 만든 포스터 -->
+<section class="slide">
+  <h2>캠페인 포스터!</h2>
+  <img class="media poster-big" src="assets/포스터-2.jpg" alt="우주 재활용 공장 캠페인 포스터">
+</section>
+
+<!-- 10. 우리가 만든 영상 -->
+<section class="slide">
+  <h2>찰칵! 우주 영상</h2>
+  <p>우주쓰레기가 연료가 되는 모습을 담았어요!</p>
+  <video class="media" src="assets/영상-3.mp4" controls></video>
+</section>
+
+<!-- 11. 이렇게 실천해요 -->
+<section class="slide">
+  <h2>이렇게 실천해요</h2>
+  <p>우리도 오늘부터 실천해요!</p>
+  <ul>
+    <li>내 주변 쓰레기도 다시 쓸 방법을 찾아요</li>
+    <li>우주쓰레기 문제를 가족·친구에게 알려요</li>
+    <li>쓰레기는 종류별로 나눠서 버려요</li>
+  </ul>
+</section>
+
+<!-- 14. 우주 지킴이 챌린지! (관객이 누르는 게임) -->
+<section class="slide quiz-slide" id="quiz-slide" aria-label="우주 지킴이 챌린지 게임">
+  <h2>우주 지킴이 챌린지!</h2>
+  <p class="quiz-sub">관객 친구가 직접 버튼을 눌러 보세요!</p>
+  <div class="quiz-play" id="quiz-play">
+    <p class="quiz-progress" id="quiz-progress">문제 1 / 3</p>
+    <div class="quiz-question" id="quiz-question">우주 재활용 공장이 연료를 만들려면, 가장 먼저 필요한 것은?</div>
+    <div class="quiz-options" id="quiz-options">
+      <button type="button" class="quiz-option">① 공장을 지구로 옮기기</button>
+      <button type="button" class="quiz-option">② 우주선이 쓰레기를 가져오기</button>
+      <button type="button" class="quiz-option">③ 쓰레기에 불 붙이기</button>
+    </div>
+    <p class="quiz-feedback" id="quiz-feedback" role="status" aria-live="polite"></p>
+  </div>
+  <div class="quiz-result" id="quiz-result">
+    <p class="quiz-score" id="quiz-score"></p>
+    <p class="quiz-stars" id="quiz-stars" aria-hidden="true"></p>
+    <p class="quiz-message" id="quiz-message"></p>
+    <button type="button" class="quiz-retry" id="quiz-retry">다시 도전</button>
+  </div>
+</section>
+
+<!-- 15. 10년 뒤 상상 -->
+<section class="slide">
+  <h2>10년 뒤의 우주?</h2>
+  <p>우주 재활용 공장이 계속 일한다면<br>우주가 깨끗해질 거예요.</p>
+  <p>2035년의 뉴스를<br>만나 볼까요?</p>
+</section>
+
+<!-- 16. 뉴스 속보! -->
+<section class="slide">
+  <h2>2035년 뉴스 속보!</h2>
+  <p>“우주쓰레기가 거의 사라졌다!”</p>
+  <p>우주 재활용 공장이 쓰레기를 연료로 바꿔서,<br>밤하늘의 별이 더 또렷하게 보여요.</p>
+  <p class="team">— 오늘의 머리기사 —</p>
+</section>
+
+<!-- 17. 깨끗한 우주를 꿈꿔요 -->
+<section class="slide">
+  <h2>깨끗한 우주를 꿈꿔요</h2>
+  <ul>
+    <li>우주쓰레기가 없는 깨끗한 하늘</li>
+    <li>우리의 우주 재활용 공장이<br>그 미래를 만들어요!</li>
+  </ul>
+  <img class="media" src="assets/그림-12.jpg" alt="깨끗한 우주 그림">
+</section>
+
+<!-- 마무리 감동 장면 (우리 팀 장 바로 앞) -->
+<section class="slide finale" id="finale-slide" aria-label="우리의 우주는 오늘보다 더 빛날 거예요">
+  <div class="finale-glow" aria-hidden="true">
+    <i class="fg-a"></i><i class="fg-b"></i><i class="fg-c"></i>
+  </div>
+  <div class="finale-stars" aria-hidden="true"></div>
+  <div class="finale-text">
+    <p class="finale-line l1">우리의 우주는,</p>
+    <p class="finale-line l2">오늘보다 더 빛날 거예요.</p>
+    <p class="finale-orn" aria-hidden="true">✦ &nbsp;✦ &nbsp;✦</p>
+  </div>
+  <div class="finale-sparks" aria-hidden="true"></div>
+</section>
+
+<!-- 18. 우리 팀 -->
+<section class="slide">
+  <h2>우리 팀</h2>
+  <p class="team">03조 우주 지킴이</p>
+  <p>우주를 지키는 건, 바로 우리예요!</p>
+  <p>들어 주셔서 고맙습니다!</p>
+  <img class="media media-mini" src="assets/그림-8.jpg" alt="우주 지킴이 마무리 우주선 그림">
+</section>
+
+<!-- 여기에 친구들 슬라이드가 들어갑니다 (합쳐줘 를 쓰면 아래에 채워져요) -->
+
+<div class="page"><span id="now">1</span> / <span id="all">7</span></div>
+<div class="hint">← → 눌러서 넘기기</div>
+
+<!-- 움직임 라이브러리. 없어도 발표자료는 그대로 보인다 -->
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/animejs@3.2.2/lib/anime.min.js"></script>
+
+<script>
+(function(){
+  var slides = document.querySelectorAll('.slide');
+  var i = 0;
+  document.getElementById('all').textContent = slides.length;
+
+  // 움직임을 불편해하는 사람을 위한 설정을 존중한다
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // 장이 나타날 때 안쪽 요소가 아래에서 살짝 올라온다.
+  // GSAP 이 없거나(CDN 실패) 사용자가 움직임을 껐으면 그냥 보여준다.
+  // 무슨 일이 있어도 글은 보여야 한다. 인라인 스타일을 지워 원래 모습으로 돌린다.
+  function 무조건보이기(items){
+    for (var k = 0; k < items.length; k++) {
+      items[k].style.opacity = '';
+      items[k].style.transform = '';
+      items[k].style.translate = '';
+      items[k].style.rotate = '';
+      items[k].style.scale = '';
+    }
+  }
+
+  function animateIn(slide){
+    var items = slide.children;
+
+    // 움직임을 껐거나, CDN 이 실패했거나, 화면에 안 보이는 탭이면 그냥 보여준다.
+    // (안 보이는 탭에서는 브라우저가 애니메이션을 멈춰서 opacity 0 으로 굳는다)
+    if (reduceMotion || !window.gsap || document.hidden) {
+      무조건보이기(items);
+      return;
+    }
+
+    gsap.killTweensOf(items);
+    gsap.fromTo(items,
+      { opacity: 0, y: 18 },
+      { opacity: 1, y: 0, duration: 0.45, stagger: 0.08, ease: 'power2.out', clearProps: 'all' }
+    );
+
+    // 마지막 안전망: 1.2초 뒤에도 아직 투명하면 애니메이션을 포기하고 보여준다.
+    // 발표 중에 글이 안 보이는 것보다 움직임이 없는 게 낫다.
+    clearTimeout(slide.__safety);
+    slide.__safety = setTimeout(function(){
+      if (items.length && getComputedStyle(items[0]).opacity !== '1') {
+        gsap.killTweensOf(items);
+        무조건보이기(items);
+      }
+    }, 1200);
+  }
+
+  // 장 안에 .count(숫자가 올라가는 요소)가 있으면 0에서 목표까지 센다.
+  // anime.js 는 숫자에 쉼표(,)를 직접 못 넣어 주므로 여기서 넣어 준다.
+  function 숫자쉼표(n){ return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+
+  function 숫자올리기(slide){
+    var counts = slide.querySelectorAll('.count');
+    if (!counts.length) return;
+    for (var k = 0; k < counts.length; k++){
+      (function(el){
+        var 목표 = parseInt(el.getAttribute('data-to'), 10) || 0;
+        // 움직임을 껐거나 anime.js 가 없으면(CDN 실패) 최종 숫자만 보여준다
+        if (reduceMotion || !window.anime || document.hidden) {
+          el.textContent = 숫자쉼표(목표);
+          return;
+        }
+        var 상태 = el.__count || { v: 0 };
+        el.__count = 상태;
+        anime.remove(상태);
+        el.textContent = '0';
+        anime({
+          targets: 상태,
+          v: 목표,
+          duration: 1500,
+          easing: 'easeOutExpo',
+          update: function(){ el.textContent = 숫자쉼표(Math.round(상태.v)); },
+          complete: function(){ el.textContent = 숫자쉼표(목표); }
+        });
+      })(counts[k]);
+    }
+  }
+
+  // 탭으로 돌아왔을 때 굳어 있으면 풀어 준다
+  document.addEventListener('visibilitychange', function(){
+    if (!document.hidden) { animateIn(slides[i]); }
+  });
+
+  function show(n){
+    if (n < 0) n = 0;
+    if (n > slides.length - 1) n = slides.length - 1;
+    slides[i].classList.remove('on');
+    i = n;
+    slides[i].classList.add('on');
+    document.getElementById('now').textContent = i + 1;
+    animateIn(slides[i]);
+    숫자올리기(slides[i]);
+  }
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { show(i+1); }
+    if (e.key === 'ArrowLeft'  || e.key === 'PageUp')                   { show(i-1); }
+    if (e.key === 'Home') { show(0); }
+    if (e.key === 'End')  { show(slides.length-1); }
+  });
+  document.addEventListener('click', function(e){
+    show(e.clientX < window.innerWidth/3 ? i-1 : i+1);
+  });
+
+  // 첫 장에도 등장 애니메이션을 걸어 준다.
+  // CDN 이 늦게 도착할 수 있으니 load 까지 기다린다.
+  if (document.readyState === 'complete') { animateIn(slides[0]); }
+  else { window.addEventListener('load', function(){ animateIn(slides[0]); }); }
+
+  // ===== 우주 지킴이 챌린지! (관객이 누르는 퀴즈 게임 장) =====
+  // 문제는 원래 HTML에 먼저 적혀 있으므로, 이 스크립트가 어떤 이유로든
+  // 안 되더라도 첫 문제 글은 그대로 보인다 (안전망).
+  var quizSlide = document.getElementById('quiz-slide');
+  if (quizSlide && !quizSlide.__quizOk) {
+    quizSlide.__quizOk = true;
+    var quizPlay    = document.getElementById('quiz-play');
+    var quizResult  = document.getElementById('quiz-result');
+    var quizQuestion= document.getElementById('quiz-question');
+    var quizOptions = document.getElementById('quiz-options');
+    var quizProgress= document.getElementById('quiz-progress');
+    var quizFeedback= document.getElementById('quiz-feedback');
+    var quizScore   = document.getElementById('quiz-score');
+    var quizStars   = document.getElementById('quiz-stars');
+    var quizMessage = document.getElementById('quiz-message');
+    var quizRetry   = document.getElementById('quiz-retry');
+    var optButtons  = quizOptions.querySelectorAll('.quiz-option');
+    var circles     = ['①', '②', '③'];
+    var quizData = [
+      { q: '우주 재활용 공장이 연료를 만들려면, 가장 먼저 필요한 것은?', options: ['공장을 지구로 옮기기', '우주선이 쓰레기를 가져오기', '쓰레기에 불 붙이기'], answer: 1 },
+      { q: '자석 우주선이 쓰레기를 잘 잡는 이유는?', options: ['쓰레기가 아주 가벼워서', '쓰레기가 쇠로 된 게 많아서', '우주선이 둥글어서'],  answer: 1 },
+      { q: '우주쓰레기를 연료로 바꾸면 생기는 좋은 점은?',   options: ['우주선이 더 무거워져요', '우주에 쓰레기가 쌓여요', '우주가 깨끗해지고 에너지도 생겨요'],          answer: 2 }
+    ];
+    var quizNow = 0;       // 지금 몇 번째 문제 (0부터)
+    var quizRight = 0;     // 한 번에 맞힌 문제 수 (점수)
+    var quizWrong = 0;     // 지금 문제에서 틀린 횟수
+    var quizTimer = null;
+    var quizDone = false;  // 결과 화면인지
+
+    // 게임 안쪽 클릭이 장 넘김으로 이어지지 않게 멈춘다
+    function quizStop(e){ e.stopPropagation(); }
+
+    function quizFeedbackShow(text, kind){
+      quizFeedback.textContent = text;
+      quizFeedback.classList.remove('good', 'bad');
+      if (kind) quizFeedback.classList.add(kind);
+      quizFeedback.classList.add('show');
+    }
+
+    function quizShowQuestion(){
+      var d = quizData[quizNow];
+      quizQuestion.textContent = d.q;
+      for (var k = 0; k < optButtons.length; k++){
+        optButtons[k].textContent = circles[k] + ' ' + d.options[k];
+        optButtons[k].disabled = false;
+        optButtons[k].classList.remove('correct', 'wrong');
+      }
+      quizProgress.textContent = '문제 ' + (quizNow + 1) + ' / ' + quizData.length;
+      quizFeedback.textContent = '';
+      quizFeedback.classList.remove('show', 'good', 'bad');
+      quizDone = false;
+      // 새 문제가 나오면 보기들이 살짝 올라온다 (움직임을 껐으면 생략)
+      if (!reduceMotion){
+        for (var a = 0; a < optButtons.length; a++){
+          optButtons[a].style.animationDelay = (a * 0.08) + 's';
+          optButtons[a].classList.remove('q-pop');
+        }
+        void quizOptions.offsetWidth; // 지웠다 다시 넣어야 애니메이션이 다시 돈다
+        for (var b = 0; b < optButtons.length; b++){ optButtons[b].classList.add('q-pop'); }
+      }
+    }
+
+    function quizShowResult(){
+      quizDone = true;
+      quizPlay.style.display = 'none';
+      quizResult.classList.add('show');
+      var starsHtml = '';
+      for (var s = 0; s < 3; s++){
+        starsHtml += '<span' + (s < quizRight ? '' : ' class="off"') + '>★</span>';
+      }
+      quizStars.innerHTML = starsHtml;
+      if (quizRight === 3){
+        quizScore.textContent = '우주 지킴이 인증!';
+        quizMessage.textContent = '3문제 모두 한 번에 정답! 대단해요!';
+      } else {
+        quizScore.textContent = '도전 끝!';
+        quizMessage.innerHTML = '한 번에 맞힌 문제는 <strong>' + quizRight +
+          '개</strong>예요.<br>3문제 다 맞히면 우주 지킴이 인증이에요!';
+      }
+    }
+
+    function quizReset(){
+      clearTimeout(quizTimer);
+      quizNow = 0; quizRight = 0; quizWrong = 0;
+      quizResult.classList.remove('show');
+      quizPlay.style.display = '';
+      quizShowQuestion();
+    }
+
+    // 보기 등장 효과(0.38초)가 끝나면 클래스를 지워서
+    // 마우스를 올렸을 때 살짝 떠오르는 효과가 계속 살아 있게 한다
+    for (var p = 0; p < optButtons.length; p++){
+      (function(btn){
+        btn.addEventListener('animationend', function(ev){
+          if (ev.animationName === 'quizPop'){
+            btn.classList.remove('q-pop');
+            btn.style.animationDelay = '';
+          }
+        });
+      })(optButtons[p]);
+    }
+
+    // 게임 카드 안쪽 어디를 눌러도 장이 넘어가지 않게 멈춘다 (위임)
+    quizPlay.addEventListener('click', function(e){
+      e.stopPropagation();
+      if (quizDone) return;
+      var btn = e.target.closest('.quiz-option');
+      if (!btn || btn.disabled) return;
+      var picked = Array.prototype.indexOf.call(optButtons, btn);
+      if (picked < 0) return;
+      var d = quizData[quizNow];
+      for (var k = 0; k < optButtons.length; k++){ optButtons[k].disabled = true; }
+      if (picked === d.answer){
+        btn.classList.add('correct');
+        if (quizWrong === 0) quizRight = quizRight + 1; // 한 번에 맞히면 점수!
+        quizFeedbackShow('정답!', 'good');
+        clearTimeout(quizTimer);
+        quizTimer = setTimeout(function(){
+          quizNow = quizNow + 1;
+          if (quizNow >= quizData.length) { quizShowResult(); }
+          else { quizShowQuestion(); }
+        }, 1150);
+      } else {
+        btn.classList.add('wrong');
+        btn.disabled = true;   // 틀린 보기는 흐려지고 다시 고를 수 없다
+        quizWrong = quizWrong + 1;
+        for (var r = 0; r < optButtons.length; r++){
+          if (!optButtons[r].classList.contains('wrong')){
+            optButtons[r].disabled = false; // 남은 보기는 다시 고를 수 있게
+          }
+        }
+        quizFeedbackShow('아쉬워요! 다시 골라 보세요!', 'bad');
+      }
+    });
+
+    // "다시 도전" 버튼
+    quizRetry.addEventListener('click', function(e){ quizStop(e); quizReset(); });
+    quizResult.addEventListener('click', quizStop);
+
+    // 게임 중에 화살표·스페이스를 눌러도 장이 넘어가지 않게 막는다
+    // (결과 화면이 나온 뒤에는 발표자가 키로 다음 장에 갈 수 있다)
+    quizPlay.addEventListener('keydown', function(e){
+      if (quizDone) return;
+      if (e.key === 'ArrowRight' || e.key === 'ArrowLeft' || e.key === ' ' ||
+          e.key === 'PageDown' || e.key === 'PageUp'){ e.stopPropagation(); }
+    });
+
+    quizShowQuestion(); // 처음 문제를 게임 상태로 준비한다
+  }
+})();
+</script>
+
+<!-- ===== 마무리 감동 장면 전용: 별 파티클과 문구 연출 ===== -->
+<script>
+(function(){
+  var slide = document.getElementById('finale-slide');
+  if (!slide) return;
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var starsHost = slide.querySelector('.finale-stars');
+  var sparkHost = slide.querySelector('.finale-sparks');
+  var textWrap  = slide.querySelector('.finale-text');
+  if (!starsHost || !sparkHost || !textWrap) return;
+  var items = [].slice.call(textWrap.querySelectorAll('.finale-line, .finale-orn'));
+  var lines = [].slice.call(textWrap.querySelectorAll('.finale-line'));
+
+  // 1) 반짝이는 별 파티클 만들기 (한 번만, 보일 때마다 CSS 반짝임이 다시 시작)
+  if (!starsHost.children.length){
+    var kinds = [['g',26,1.1,2.7],['p',40,0.9,2.3]];
+    for (var k = 0; k < kinds.length; k++){
+      for (var s = 0; s < kinds[k][1]; s++){
+        var star = document.createElement('i');
+        star.className = 'finale-star ' + kinds[k][0];
+        var d = kinds[k][2] + Math.random() * (kinds[k][3] - kinds[k][2]);
+        star.style.left = Math.floor(Math.random() * 100) + '%';
+        star.style.top  = Math.floor(Math.random() * 100) + '%';
+        star.style.width = star.style.height = d.toFixed(1) + 'px';
+        star.style.animationDuration = (2.5 + Math.random() * 3.2).toFixed(2) + 's';
+        star.style.animationDelay = (-Math.random() * 5.5).toFixed(2) + 's';
+        star.style.setProperty('--o', (0.35 + Math.random() * 0.45).toFixed(2));
+        starsHost.appendChild(star);
+      }
+    }
+  }
+
+  // 2) 원래 모습(정지 화면)으로: 어떤 실패에도 문구는 남아야 한다
+  function showStatic(){
+    if (window.gsap){ try{ window.gsap.killTweensOf(items); }catch(e){} }
+    for (var k = 0; k < items.length; k++){
+      items[k].style.opacity = '';
+      items[k].style.transform = '';
+    }
+    if (sparkHost){ sparkHost.innerHTML = ''; }
+  }
+
+  // 3) 문구 줄이 뜰 때 그 줄 주변에 반짝임 한 줌 (0.95초 안에 스르륵)
+  function burst(el){
+    if (!sparkHost || !el) return;
+    sparkHost.innerHTML = '';
+    var rect = el.getBoundingClientRect();
+    if (!rect || (rect.width === 0 && rect.height === 0)) return;
+    for (var k = 0; k < 12; k++){
+      var sp = document.createElement('span');
+      sp.className = 'finale-spark ' + (Math.random() < 0.55 ? 'g' : 'p');
+      sp.textContent = Math.random() < 0.5 ? '✦' : '✧';
+      sp.style.left = (rect.left + rect.width * (0.05 + Math.random() * 0.9)).toFixed(1) + 'px';
+      sp.style.top  = (rect.top  + rect.height * (0.1 + Math.random() * 0.8)).toFixed(1) + 'px';
+      sp.style.fontSize = (1.7 + Math.random() * 1.6).toFixed(1) + 'vh';
+      sp.style.setProperty('--dx', Math.round(Math.random() * 36 - 18) + 'px');
+      sp.style.setProperty('--dy', Math.round(-Math.random() * 48 - 8) + 'px');
+      sparkHost.appendChild(sp);
+    }
+  }
+
+  // 4) 장면 재생: 이 장이 보일 때마다 문구가 한 줄씩 다시 올라온다
+  var tl = null, timer = null;
+  function play(){
+    showStatic();
+    // 움직임을 껐거나 CDN 이 늦었거나 안 보이는 탭이면 멈춘 문구(완성 화면)만 보여준다
+    if (reduceMotion || !window.gsap || document.hidden) return;
+    gsap.set(items, { opacity: 0, y: 22 });
+    tl = gsap.timeline({ onComplete: function(){ tl = null; } });
+    var at = 0.45;
+    for (var i = 0; i < items.length; i++){
+      (function(el, isLine, t){
+        tl.to(el, { opacity: 1, y: 0, duration: 0.75, ease: 'power2.out' }, t);
+        if (isLine){
+          tl.call(function(){ burst(el); }, null, t + 0.62);
+        }
+      })(items[i], i < lines.length, at);
+      at = at + 1.0;
+    }
+    // 안전망: 어떤 일이 있어도 4.6초 안에는 문구를 보여준다
+    clearTimeout(timer);
+    timer = setTimeout(function(){
+      if (tl){ try{ tl.kill(); }catch(e){} tl = null; }
+      showStatic();
+    }, 4600);
+  }
+
+  // 5) .on 이 붙을 때마다 (장이 보일 때마다) 처음부터 다시 재생
+  var onNow = false;
+  new MutationObserver(function(){
+    var visible = slide.classList.contains('on');
+    if (visible && !onNow){ onNow = true; play(); }
+    else if (!visible && onNow){
+      onNow = false;
+      clearTimeout(timer);
+      if (tl){ try{ tl.kill(); }catch(e){} tl = null; }
+      showStatic();
+    }
+  }).observe(slide, { attributes: true, attributeFilter: ['class'] });
+})();
+</script>
+
+<!-- ===== 멈추지 않는 우주쓰레기 장 전용: 장이 보이는 동안만 숫자가 늘어난다 ===== -->
+<script>
+(function(){
+  var slide = document.getElementById('grow-slide');
+  var num   = document.getElementById('grow-num-text');
+  if (!slide || !num) return;
+
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var 시작값 = 130000000;      // 작은 조각 약 1억 3,000만 개에서 시작
+  var 초당증가 = 1 / 0.65;     // 0.65초마다 1개씩 느긋하게
+  var value  = 시작값;
+  var shown  = -1;             // 지금 화면에 보여 준 정수
+  var raf = null, running = false, last = 0;
+
+  function fmt(n){ return n.toLocaleString('en-US'); } // 130,000,000
+
+  function paint(){
+    var v = Math.floor(value);
+    if (v === shown) return;
+    shown = v;
+    num.textContent = fmt(v);
+    if (!reduceMotion){
+      num.classList.remove('pop');
+      void num.offsetWidth;      // 애니메이션을 다시 재생시킨다
+      num.classList.add('pop');
+    }
+  }
+
+  function tick(now){
+    if (!running) return;
+    if (last){
+      var dt = Math.min(now - last, 300); // 한 번에 너무 크게 뛰지 않게
+      value = value + dt * 초당증가;
+    }
+    last = now;
+    paint();
+    raf = requestAnimationFrame(tick);
+  }
+
+  function start(){
+    if (running || reduceMotion) return;
+    if (document.hidden) return;
+    running = true; last = 0;
+    raf = requestAnimationFrame(tick);
+  }
+
+  function stop(){
+    running = false;
+    if (raf){ cancelAnimationFrame(raf); raf = null; }
+    num.classList.remove('pop');
+  }
+
+  // 첫 화면 안전망: 숫자가 안 올라가도 큰 숫자와 글은 항상 보인다
+  num.textContent = fmt(시작값);
+  shown = 시작값;
+
+  // 이 장에 .on 이 붙는 동안만 이어서 늘어나고, 떠나면 멈춘다
+  var onNow = slide.classList.contains('on');
+  if (onNow) start();
+  new MutationObserver(function(){
+    var visible = slide.classList.contains('on');
+    if (visible && !onNow){ onNow = true; start(); }
+    else if (!visible && onNow){ onNow = false; stop(); }
+  }).observe(slide, { attributes: true, attributeFilter: ['class'] });
+
+  // 화면을 다른 탭으로 옮기면 멈췄다가 돌아오면 이어서 늘어난다
+  document.addEventListener('visibilitychange', function(){
+    if (document.hidden){ stop(); }
+    else if (slide.classList.contains('on')){ start(); }
+  });
+})();
+</script>
+
+</body>
+</html>
